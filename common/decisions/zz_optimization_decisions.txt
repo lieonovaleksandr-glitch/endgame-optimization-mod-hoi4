@@ -1,0 +1,96 @@
+# ============================================================================
+# Endgame Performance Optimization — decisions (панель управления модом)
+# ============================================================================
+
+optimization_category = {
+
+	# Провести глубокую очистку прямо сейчас (не дожидаясь месячного тика)
+	opt_run_gc_now = {
+		icon = generic_research
+		priority = 100
+		cost = 0
+		days_re_enable = 7
+		visible = {
+			is_ai = no
+			NOT = { has_global_flag = opt_gc_disabled }
+		}
+		complete_effect = {
+			custom_effect_tooltip = opt_run_gc_now_tt
+			hidden_effect = {
+				optimization_dead_country_gc = yes
+			}
+		}
+		ai_will_do = { factor = 0 }
+	}
+
+	# Отключить автоматическую очистку
+	opt_disable_gc = {
+		icon = generic_research
+		priority = 90
+		cost = 0
+		visible = {
+			is_ai = no
+			NOT = { has_global_flag = opt_gc_disabled }
+		}
+		complete_effect = {
+			custom_effect_tooltip = opt_disable_gc_tt
+			hidden_effect = {
+				set_global_flag = opt_gc_disabled
+			}
+		}
+		ai_will_do = { factor = 0 }
+	}
+
+	# Включить автоматическую очистку обратно
+	opt_enable_gc = {
+		icon = generic_research
+		priority = 90
+		cost = 0
+		visible = {
+			is_ai = no
+			has_global_flag = opt_gc_disabled
+		}
+		complete_effect = {
+			custom_effect_tooltip = opt_enable_gc_tt
+			hidden_effect = {
+				clr_global_flag = opt_gc_disabled
+			}
+		}
+		ai_will_do = { factor = 0 }
+	}
+
+	# Агрессивный режим: утилизация устаревших складов ИИ (opt-in)
+	opt_enable_aggressive = {
+		icon = generic_research
+		priority = 80
+		cost = 0
+		visible = {
+			is_ai = no
+			NOT = { has_global_flag = opt_aggressive_enabled }
+		}
+		complete_effect = {
+			custom_effect_tooltip = opt_enable_aggressive_tt
+			hidden_effect = {
+				set_global_flag = opt_aggressive_enabled
+			}
+		}
+		ai_will_do = { factor = 0 }
+	}
+
+	opt_disable_aggressive = {
+		icon = generic_research
+		priority = 80
+		cost = 0
+		visible = {
+			is_ai = no
+			has_global_flag = opt_aggressive_enabled
+		}
+		complete_effect = {
+			custom_effect_tooltip = opt_disable_aggressive_tt
+			hidden_effect = {
+				clr_global_flag = opt_aggressive_enabled
+			}
+		}
+		ai_will_do = { factor = 0 }
+	}
+}

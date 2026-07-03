@@ -1,0 +1,49 @@
+# ============================================================================
+# Endgame Performance Optimization — регулятор числа дивизий ИИ
+# ============================================================================
+# Дефайн WANTED_UNITS_MAX_WANTED_CAP ограничивает только базовую формулу
+# "сколько дивизий ИИ хочет": по комментарию Paradox его могут превышать
+# зашитые множители, а ваниль дополнительно накидывает страновые стратегии
+# (например SOV "FEED THE MEATGRINDER" после 09.1941).
+# Этот регулятор работает как обратная связь: чем сильнее страна превысила
+# потолок, тем сильнее отрицательный фактор желаемых дивизий. Ступени
+# суммируются. Существующие дивизии никогда не удаляются — превышение
+# рассасывается естественной убылью и прекращением тренировки.
+# Игрока не касается: ai_strategy применяется только к ИИ.
+# ============================================================================
+
+opt_division_governor_soft = {
+	allowed = { always = yes }
+	enable = {
+		num_divisions > 250
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ai_wanted_divisions_factor
+		value = -50
+	}
+}
+
+opt_division_governor_hard = {
+	allowed = { always = yes }
+	enable = {
+		num_divisions > 300
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ai_wanted_divisions_factor
+		value = -150
+	}
+}
+
+opt_division_governor_max = {
+	allowed = { always = yes }
+	enable = {
+		num_divisions > 350
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = ai_wanted_divisions_factor
+		value = -300
+	}
+}

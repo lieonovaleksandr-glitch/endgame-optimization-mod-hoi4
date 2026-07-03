@@ -1,0 +1,7 @@
+optimization_category = {
+	icon = generic_research
+	priority = 1000
+	visible = {
+		is_ai = no
+	}
+}

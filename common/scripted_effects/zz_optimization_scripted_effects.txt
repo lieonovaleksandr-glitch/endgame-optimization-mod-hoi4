@@ -1,0 +1,96 @@
+# ============================================================================
+# Endgame Performance Optimization — scripted effects
+# ============================================================================
+# "Сборщик мусора": страны-призраки (0 штатов, 0 дивизий, 0 кораблей,
+# 0 самолётов, не в войне, не марионетка, не правительство в изгнании,
+# не в фракции) продолжают тикать в движке как полноценные страны:
+# ежечасное обновление ролей ИИ, дипломатия, торговля, разведка.
+# К эндгейму таких остатков гражданских войн и распавшихся государств
+# накапливаются десятки. Их аннексия ничего не передаёт (у них ничего нет)
+# и ничего не меняет в геймплее — просто убирает пустые тики ИИ.
+# ============================================================================
+
+optimization_dead_country_gc = {
+	every_country = {
+		limit = {
+			exists = yes
+			is_ai = yes
+			has_war = no
+			has_capitulated = no
+			has_civil_war = no
+			is_government_in_exile = no
+			is_subject = no
+			is_in_faction = no
+			num_of_controlled_states < 1
+			NOT = { any_owned_state = { always = yes } }
+			num_divisions < 1
+			has_navy_size = { size < 1 }
+			has_deployed_air_force_size = { size < 1 }
+		}
+		# Кто именно аннексирует пустую страну — не имеет значения:
+		# передавать нечего. Берём любую существующую крупную державу.
+		random_country = {
+			limit = {
+				exists = yes
+				is_major = yes
+				num_of_controlled_states > 0
+				NOT = { tag = PREV }
+			}
+			annex_country = { target = PREV transfer_troops = no }
+			add_to_variable = { global.opt_gc_removed_total = 1 }
+		}
+	}
+}
+
+# ============================================================================
+# АГРЕССИВНЫЙ РЕЖИМ (opt-in, включается решением): постепенная утилизация
+# гигантских складов устаревшей пехотной экипировки у ИИ. К 1944 году у
+# крупных стран лежат миллионы винтовок 1-2 поколения; каждая позиция
+# склада участвует в расчётах подкреплений, гарнизонов и ленд-лиза.
+# Гарантии безопасности:
+#  - только ИИ (игрока не трогаем);
+#  - только если страна уже массово владеет современным аналогом
+#    (старьё лежит мёртвым грузом, а не кормит гарнизоны);
+#  - срезается фиксированный кусок в месяц, минимум ~2000 единиц
+#    остаётся на гарнизонные нужды.
+# ============================================================================
+
+optimization_equipment_purge = {
+	every_country = {
+		limit = {
+			exists = yes
+			is_ai = yes
+			has_equipment = { infantry_equipment_2 > 2000 }
+			has_equipment = { infantry_equipment_0 > 7000 }
+		}
+		add_equipment_to_stockpile = {
+			type = infantry_equipment_0
+			amount = -5000
+		}
+	}
+	every_country = {
+		limit = {
+			exists = yes
+			is_ai = yes
+			has_equipment = { infantry_equipment_3 > 2000 }
+			has_equipment = { infantry_equipment_1 > 7000 }
+		}
+		add_equipment_to_stockpile = {
+			type = infantry_equipment_1
+			amount = -5000
+		}
+	}
+}
+
+# Полный проход очистки (вызывается ежемесячно из on_actions и вручную
+# через решение "Провести глубокую очистку").
+optimization_full_gc = {
+	if = {
+		limit = { NOT = { has_global_flag = opt_gc_disabled } }
+		optimization_dead_country_gc = yes
+	}
+	if = {
+		limit = { has_global_flag = opt_aggressive_enabled }
+		optimization_equipment_purge = yes
+	}
+}
